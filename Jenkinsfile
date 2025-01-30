@@ -26,7 +26,7 @@ pipeline {
          stage('sonarqube analysis') {
           steps {
             script {
-                withSonarQubeEnv(credentialsId: 'jenkins-sonar-token'){
+                withSonarQubeEnv('sonar-server'){
                      sh ''' sonar-scanner -Dsonar.projectName=Netflix \
                     -Dsonar.projectKey=Netflix '''
                 }
