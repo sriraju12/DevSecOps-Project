@@ -4,12 +4,12 @@ pipeline {
     tools {
         jdk 'Jdk17'
         nodejs 'node16'
-        sonarRunner 'sonar-scanner'
     }
 
     environment {
         DOCKER_IMAGE = "sriraju12/netflix-app:${BUILD_NUMBER}"
-            }
+        SCANNER_HOME=tool 'sonar-scanner'
+    }
 
     stages {
         stage('clean workspace') {
@@ -28,7 +28,7 @@ pipeline {
           steps {
             script {
                 withSonarQubeEnv('sonar-server'){
-                     sh ''' sonar-scanner -Dsonar.projectName=Netflix \
+                     sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Netflix \
                     -Dsonar.projectKey=Netflix '''
                 }
             }
