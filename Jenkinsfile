@@ -35,6 +35,14 @@ pipeline {
           }
         }
 
+       stage('quality gate') {
+            steps {
+                script {
+                  waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonar-token'
+                }
+            }
+        }
+
         stage('install dependencies') {
             steps {
                 sh 'npm install'
@@ -86,7 +94,7 @@ pipeline {
                 "Build Number: ${env.BUILD_NUMBER}<br/>" +
                 "URL: ${env.BUILD_URL}<br/>",
             to: 'rajukrishnamsetty9@gmail.com',                                
-            attachmentsPattern: 'trivy-fs-reports.html,trivy-image-report.htm'
+            attachmentsPattern: 'trivy-fs-reports.html,trivy-image-report.html'
         }
     }   
 }
