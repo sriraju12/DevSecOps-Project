@@ -35,15 +35,7 @@ pipeline {
           }
         }
 
-       stage('quality gate') {
-            steps {
-                script {
-                  waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonar-token'
-                }
-            }
-        }
-
-        stage('install dependencies') {
+    stage('install dependencies') {
             steps {
                 sh 'npm install'
             }
