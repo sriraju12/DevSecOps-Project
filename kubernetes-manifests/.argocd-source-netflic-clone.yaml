@@ -1,0 +1,3 @@
+kustomize:
+  images:
+  - sriraju12/netflix-app:24
