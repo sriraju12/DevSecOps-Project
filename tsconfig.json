@@ -15,8 +15,8 @@
     "isolatedModules": true,
     "noEmit": false,
     "jsx": "react-jsx",
-    "baseUrl": "."
-    "outDir": "./dist"
+    "baseUrl": ".",
+    "outDir": "./dist",
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
