@@ -62,7 +62,7 @@ jobs:
 
   build:
     name: build
-    needs: [test, sonar_scan]
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
