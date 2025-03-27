@@ -125,6 +125,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/github-netflix-clone:${{ github.sha }}
+          build-args: |
+            TMDB_V3_API_KEY= ${{ secrets.TMDB_TOKEN }}
           platforms: linux/amd64,linux/arm64
 
       - name: Run Trivy Vulnerability Scan
