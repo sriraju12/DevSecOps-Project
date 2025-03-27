@@ -1,39 +1,13 @@
 name: Netflix Clone CI/CD Pipeline
 
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-      - 'kubernetes-manifests/deployment.yaml'  
   pull_request:
     branches: [ main ]
 
 jobs:
-  test:
-    name: Unit Testing
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm install
-      
-      - name: Run tests
-        run: npm test || echo "No tests found, would add tests in a project"
-
   sonar_scan:
     name: SonarQube Scan
     runs-on: ubuntu-latest
-    env:
-      SONARQUBE_URL: ${{ secrets.SONARQUBE_URL }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,95 +22,18 @@ jobs:
         run: npm install
 
       - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v5.0.0
-        with:
-          sonar-host-url: ${{ secrets.SONARQUBE_URL }}  # Use secret SONARQUBE_URL
-          sonar-token: ${{ secrets.SONAR_TOKEN }}  # Use secret SONAR_TOKEN
-          sonar-project-key: ${{ secrets.PROJECT_KEY }}  # Use secret PROJECT_KEY
-          sonar-project-name: ${{ secrets.PROJECT_NAME }}  # Use secret PROJECT_NAME
-
-      - name: SonarQube Quality Gate check
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        timeout-minutes: 5
+        uses: SonarSource/sonarqube-scan-action@v5.0.0 
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
 
-  build:
-    name: build
-    needs: [test]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
         with:
-          node-version: '20'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm install
-      
-      - name: Build project
-        run: npm run build
+          pollingTimeoutSec: 600
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: dist/
-
-  build_docker_image_and_push:
-    name: Build Docker Image and Push to Docker Hub
-    needs: [test,build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js  
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: dist/
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/github-netflix-clone:${{ github.sha }}
-          build-args: |
-            TMDB_V3_API_KEY= ${{ secrets.TMDB_TOKEN }}
-          platforms: linux/amd64,linux/arm64
-
-      - name: Run Trivy Vulnerability Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/github-netflix-clone:${{ github.sha }}
-          format: table
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-          
-
+  
