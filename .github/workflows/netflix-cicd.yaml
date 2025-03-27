@@ -48,17 +48,17 @@ jobs:
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v5.0.0
         with:
-          sonarQubeUrl: ${{ secrets.SONARQUBE_URL }}
-          sonarQubeToken: ${{ secrets.SONARQUBE_TOKEN }}
-          sonarProjectKey: ${{ vars.PROJECT_NAME }}
-          sonarProjectName: ${{ vars.PROJECT_NAME}}
+          sonar-host-url: ${{ secrets.SONARQUBE_URL }}
+          sonar-token: ${{ secrets.SONARQUBE_TOKEN }}
+          sonar-project-key: ${{ vars.PROJECT_NAME }}
+          sonar-project-name: ${{ vars.PROJECT_NAME}}
 
       - name: SonarQube Quality Gate check
         id: sonarqube-quality-gate-check
         uses: sonarsource/sonarqube-quality-gate-action@master
         with:
-          sonarQubeUrl: ${{ secrets.SONARQUBE_URL }}
-          sonarQubeToken: ${{ secrets.SONARQUBE_TOKEN }}
+          sonar-host-url: ${{ secrets.SONARQUBE_URL }}
+          sonar-token: ${{ secrets.SONARQUBE_TOKEN }}
           waitForQualityGate: 'true'
 
   build:
