@@ -48,20 +48,16 @@ jobs:
         run: npm install
 
       - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v5.0.0
-        with:
-          sonar-host-url: ${{ secrets.SONARQUBE_URL }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          sonar-project-key: ${{ vars.PROJECT_NAME }}
-          sonar-project-name: ${{ vars.PROJECT_NAME}}
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       - name: SonarQube Quality Gate check
-        id: sonarqube-quality-gate-check
         uses: sonarsource/sonarqube-quality-gate-action@master
-        with:
-          sonar-host-url: ${{ secrets.SONARQUBE_URL }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          waitForQualityGate: 'true'
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build:
     name: build
